@@ -4,7 +4,7 @@ Loja virtual de cupcakes com vitrine, carrinho, pedido, pagamento e acompanhamen
 Projeto do **Projeto Integrador Transdisciplinar em Sistemas de Informação II** (Cruzeiro do Sul Virtual),
 desenvolvido a partir da modelagem UML feita no PIT I.
 
-- **Aplicação online:** _(link do Render após o deploy)_
+- **Aplicação online:** https://cupcake-store-8tt0.onrender.com
 - **Manual de uso:** [docs/manual_de_uso.md](docs/manual_de_uso.md)
 - **Banco de dados:** [database/schema_mysql.sql](database/schema_mysql.sql) · [modelo conceitual](docs/diagramas/modelo_conceitual.png) · [modelo lógico](docs/diagramas/modelo_logico.png)
 
