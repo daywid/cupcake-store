@@ -86,12 +86,6 @@ pytest -q
 Para usar MySQL: `pip install pymysql`, crie o banco com `database/schema_mysql.sql` e defina
 `DATABASE_URL=mysql+pymysql://usuario:senha@localhost:3306/cupcake_store` no arquivo `.env`.
 
-## Deploy no Render
-
-O arquivo [`render.yaml`](render.yaml) cria o serviço web e o PostgreSQL gratuito.
-No Render: **New → Blueprint →** selecione este repositório → **Apply**. Na primeira subida
-o comando `flask seed --se-vazio` cria as tabelas e os dados de demonstração.
-
 ## Licença
 
 MIT – veja [LICENSE](LICENSE).
