@@ -83,3 +83,28 @@ def test_fluxo_completo_cartao(cliente, app):
 
 def test_relatorio(admin):
     assert admin.get("/admin/relatorio").status_code == 200
+
+
+def test_login_apos_adicionar_sem_login_nao_da_405(client, app):
+    """Testes com usuários (casos 2 e 4): visitante clica em adicionar, faz login e recebia 405."""
+    p = Produto.query.filter_by(nome="Red Velvet").one()
+    r = client.post(f"/carrinho/adicionar/{p.id}", headers={"Referer": "http://localhost/?categoria=1"})
+    assert r.status_code == 302
+    assert "/carrinho/adicionar" not in r.headers["Location"]
+    r = client.get(r.headers["Location"])
+    assert "Faça login para adicionar ao carrinho".encode() in r.data
+    r = login(client, "cliente@cupcake.com", "cliente12345")
+    assert r.status_code == 200
+    assert "Cupcake de Chocolate".encode() in r.data
+
+
+def test_login_ignora_next_que_so_aceita_post(client):
+    r = client.post("/login?next=/carrinho/adicionar/1",
+                    data={"email": "cliente@cupcake.com", "senha": "cliente12345"})
+    assert r.headers["Location"] == "/"
+
+
+def test_login_ignora_next_externo(client):
+    r = client.post("/login?next=//exemplo.com",
+                    data={"email": "cliente@cupcake.com", "senha": "cliente12345"})
+    assert r.headers["Location"] == "/"

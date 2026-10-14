@@ -1,6 +1,7 @@
 """CONTROLLER – UC01 Cadastrar-se e UC02 Fazer Login."""
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.exceptions import HTTPException
 
 from ..extensions import db
 from ..forms import CadastroForm, LoginForm
@@ -11,7 +12,14 @@ bp = Blueprint("auth", __name__)
 
 
 def _destino_seguro(nxt):
-    return nxt if nxt and nxt.startswith("/") and not nxt.startswith("//") else None
+    """Aceita só caminhos internos que abrem com GET (evita redirect externo e erro 405)."""
+    if not nxt or not nxt.startswith("/") or nxt.startswith("//") or "\\" in nxt:
+        return None
+    try:
+        current_app.url_map.bind("").match(nxt.split("?", 1)[0], method="GET")
+    except HTTPException:
+        return None
+    return nxt
 
 
 @bp.route("/cadastro", methods=["GET", "POST"])
