@@ -49,4 +49,13 @@
   document.querySelectorAll("[data-recalcular]").forEach((el) => {
     el.addEventListener("change", () => el.form.requestSubmit());
   });
+
+  // Login: preenche e-mail e senha com o usuário de teste escolhido.
+  document.querySelectorAll("[data-login-teste]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.getElementById("email").value = btn.dataset.loginTeste;
+      document.getElementById("senha").value = btn.dataset.senhaTeste;
+      document.querySelector("form button.btn-brand")?.focus();
+    });
+  });
 })();
