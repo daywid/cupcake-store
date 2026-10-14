@@ -4,7 +4,7 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam classAttributeIconSize 0
 hide circle
-title Diagrama de Classes (Persistência) - Aplicativo Cupcake Store
+title Diagrama de Classes (Persistência) - Cupcake Store - versão revisada no PIT II
 
 abstract class Usuario {
   - id : int
@@ -71,6 +71,7 @@ class Carrinho {
   + adicionarItem(p : Produto, qtd : int) : void
   + removerItem(p : Produto) : void
   + calcularTotal() : decimal
+  + limpar() : void
 }
 
 class ItemCarrinho {
@@ -81,8 +82,10 @@ class ItemCarrinho {
 class Pedido {
   - id : int
   - dataPedido : DateTime
-  - valorTotal : decimal
+  - subtotal : decimal
+  - desconto : decimal
   - taxaEntrega : decimal
+  - valorTotal : decimal
   - status : StatusPedido
   + calcularTotal() : decimal
   + cancelar() : void
@@ -100,6 +103,7 @@ class Pagamento {
   - valor : decimal
   - status : StatusPagamento
   - codigoTransacao : String
+  - tentativas : int
   - dataPagamento : DateTime
   + processar() : boolean
 }
@@ -115,6 +119,7 @@ class Cupom {
   - codigo : String
   - percentual : decimal
   - validade : Date
+  - ativo : boolean
   + validar() : boolean
 }
 
