@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge %}
+{% block title %}Pedidos{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Pedidos</h1>
+<div class="d-flex flex-wrap gap-2 mb-3">
+  <a href="{{ url_for('admin.pedidos') }}" class="btn btn-sm {{ 'btn-brand' if not filtro else 'btn-outline-secondary' }}">Todos</a>
+  {% for s in status %}
+    <a href="{{ url_for('admin.pedidos', status=s.name) }}" class="btn btn-sm {{ 'btn-brand' if filtro == s.name else 'btn-outline-secondary' }}">{{ s.value }}</a>
+  {% endfor %}
+</div>
+<div class="table-responsive"><table class="table table-hover align-middle">
+  <thead><tr><th>Nº</th><th>Cliente</th><th>Data</th><th>Pagamento</th><th class="text-end">Total</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for p in pedidos %}
+    <tr>
+      <td><a href="{{ url_for('admin.pedido', pedido_id=p.id) }}">{{ p.id }}</a></td><td>{{ p.cliente.nome }}</td>
+      <td>{{ p.data_pedido|local }}</td><td class="small">{{ p.pagamento.forma.value }}</td>
+      <td class="text-end">{{ p.valor_total|brl }}</td><td>{{ status_badge(p.status) }}</td>
+    </tr>
+  {% else %}<tr><td colspan="6" class="text-muted">Nenhum pedido encontrado.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

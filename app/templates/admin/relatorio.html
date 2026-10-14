@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Relatório de vendas{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Relatório de vendas</h1>
+<form class="row g-2 align-items-end mb-4" method="get">
+  <div class="col-auto"><label for="inicio" class="form-label small">Início</label><input type="date" id="inicio" name="inicio" value="{{ inicio.isoformat() }}" class="form-control"></div>
+  <div class="col-auto"><label for="fim" class="form-label small">Fim</label><input type="date" id="fim" name="fim" value="{{ fim.isoformat() }}" class="form-control"></div>
+  <div class="col-auto"><button class="btn btn-brand">Filtrar</button></div>
+  <div class="col-auto"><button type="button" class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir</button></div>
+</form>
+<div class="row g-3 mb-4">
+  <div class="col-sm-4"><div class="card card-body shadow-sm"><div class="small text-muted">Pedidos pagos</div><div class="fs-3 fw-bold">{{ pedidos|length }}</div></div></div>
+  <div class="col-sm-4"><div class="card card-body shadow-sm"><div class="small text-muted">Faturamento</div><div class="fs-3 fw-bold">{{ total|brl }}</div></div></div>
+  <div class="col-sm-4"><div class="card card-body shadow-sm"><div class="small text-muted">Ticket médio</div><div class="fs-3 fw-bold">{{ ticket|brl }}</div></div></div>
+</div>
+<h2 class="h5">Mais vendidos</h2>
+<div class="table-responsive"><table class="table table-sm">
+  <thead><tr><th>Produto</th><th class="text-end">Unidades</th><th class="text-end">Receita</th></tr></thead>
+  <tbody>
+  {% for nome, qtd, receita in ranking %}<tr><td>{{ nome }}</td><td class="text-end">{{ qtd }}</td><td class="text-end">{{ receita|brl }}</td></tr>
+  {% else %}<tr><td colspan="3" class="text-muted">Sem vendas no período.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

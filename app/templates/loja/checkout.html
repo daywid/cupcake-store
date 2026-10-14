@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Finalizar compra</h1>
+<form method="post" novalidate id="checkout">
+  {{ form.hidden_tag() }}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        <h2 class="h6">1. Endereço de entrega</h2>
+        {% for sub in form.endereco_id %}
+          <div class="form-check">
+            {{ sub(class="form-check-input", **{"data-recalcular": "1"}) }} {{ sub.label(class="form-check-label small") }}
+          </div>
+        {% endfor %}
+        {% for e in form.endereco_id.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        {% if erro_taxa %}<div class="alert alert-danger py-2 mt-2 small mb-0">{{ erro_taxa }}</div>{% endif %}
+        <a href="{{ url_for('pedido.novo_endereco', voltar='checkout') }}" class="btn btn-sm btn-link px-0 mt-1"><i class="bi bi-plus"></i> Novo endereço</a>
+      </div></div>
+
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        <h2 class="h6">2. Cupom de desconto <span class="text-muted fw-normal">(opcional)</span></h2>
+        <div class="input-group" style="max-width:360px">
+          {{ form.cupom(class="form-control text-uppercase" + (" is-invalid" if form.cupom.errors else ""), placeholder="Ex.: BEMVINDO10", **{"aria-label": "Cupom"}) }}
+          <button class="btn btn-outline-secondary" name="acao" value="cupom">Aplicar</button>
+          {% for e in form.cupom.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div></div>
+
+      <div class="card shadow-sm"><div class="card-body">
+        <h2 class="h6">3. Forma de pagamento</h2>
+        {% for sub in form.forma %}
+          <div class="form-check form-check-inline">{{ sub(class="form-check-input") }} {{ sub.label(class="form-check-label") }}</div>
+        {% endfor %}
+      </div></div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm position-sticky" style="top:80px"><div class="card-body">
+        <h2 class="h6">Resumo</h2>
+        <ul class="list-unstyled small mb-2">
+          {% for i in carrinho.itens %}
+            <li class="d-flex justify-content-between"><span>{{ i.quantidade }}× {{ i.produto.nome }}</span><span>{{ i.subtotal()|brl }}</span></li>
+          {% endfor %}
+        </ul>
+        <hr class="my-2">
+        <div class="d-flex justify-content-between small"><span>Subtotal</span><span>{{ valores.subtotal|brl }}</span></div>
+        {% if cupom %}<div class="d-flex justify-content-between small text-success"><span>Desconto ({{ cupom.codigo }})</span><span>− {{ valores.desconto|brl }}</span></div>{% endif %}
+        <div class="d-flex justify-content-between small"><span>Entrega</span><span>{{ valores.taxa|brl if not erro_taxa else '—' }}</span></div>
+        <div class="d-flex justify-content-between fs-5 mt-2"><strong>Total</strong><strong>{{ valores.total|brl }}</strong></div>
+        <button class="btn btn-brand w-100 mt-3" name="acao" value="confirmar" {{ 'disabled' if erro_taxa }}>Confirmar pedido</button>
+        <p class="small text-muted mt-2 mb-0">O pagamento deve ser concluído em até 30 minutos.</p>
+      </div></div>
+    </div>
+  </div>
+</form>
+{% endblock %}

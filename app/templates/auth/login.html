@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block title %}Entrar{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Entrar</h1>
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          {{ campo(form.email, attrs={"type": "email", "autocomplete": "email"}) }}
+          {{ campo(form.senha, attrs={"autocomplete": "current-password"}) }}
+          {{ campo(form.lembrar) }}
+          <button class="btn btn-brand w-100">Entrar</button>
+        </form>
+        <p class="small text-center mt-3 mb-0">Ainda não tem conta? <a href="{{ url_for('auth.cadastro') }}">Cadastre-se</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

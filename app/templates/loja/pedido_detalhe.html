@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, campo, csrf %}
+{% block title %}Pedido nº {{ pedido.id }}{% endblock %}
+{% block content %}
+{% if request.args.get('novo') %}
+  <div class="text-center mb-4"><div class="display-4">🎉</div><h1 class="h3">Pedido confirmado!</h1>
+  <p class="text-muted">Previsão de entrega: até {{ pedido.entrega.previsao|local('%H:%M') }}.</p></div>
+{% endif %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <h2 class="h4 mb-0">Pedido nº {{ pedido.id }}</h2> {{ status_badge(pedido.status) }}
+</div>
+
+{% if pedido.status.name not in ('CANCELADO', 'AGUARDANDO_PAGAMENTO') %}
+<ol class="etapas list-unstyled d-flex justify-content-between mb-4" aria-label="Andamento do pedido">
+  {% set atual = etapas.index(pedido.status) if pedido.status in etapas else -1 %}
+  {% for e in etapas %}
+    <li class="{{ 'feito' if loop.index0 <= atual }}"><span class="bolinha">{{ loop.index }}</span><span class="small">{{ e.value }}</span></li>
+  {% endfor %}
+</ol>
+{% elif pedido.status.name == 'AGUARDANDO_PAGAMENTO' %}
+  <div class="alert alert-warning">Pagamento pendente. <a href="{{ url_for('pedido.pagamento', pedido_id=pedido.id) }}" class="alert-link">Pagar agora</a></div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm"><div class="card-body">
+      <h3 class="h6">Itens</h3>
+      <ul class="list-unstyled small">
+        {% for i in pedido.itens %}
+          <li class="d-flex justify-content-between"><span>{{ i.quantidade }}× {{ i.produto.nome }}</span><span>{{ i.subtotal()|brl }}</span></li>
+        {% endfor %}
+      </ul>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between small"><span>Subtotal</span><span>{{ pedido.subtotal|brl }}</span></div>
+      {% if pedido.desconto %}<div class="d-flex justify-content-between small text-success"><span>Desconto {{ pedido.cupom.codigo if pedido.cupom }}</span><span>− {{ pedido.desconto|brl }}</span></div>{% endif %}
+      <div class="d-flex justify-content-between small"><span>Entrega</span><span>{{ pedido.taxa_entrega|brl }}</span></div>
+      <div class="d-flex justify-content-between fw-bold mt-1"><span>Total</span><span>{{ pedido.valor_total|brl }}</span></div>
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm mb-3"><div class="card-body small">
+      <h3 class="h6">Entrega</h3>
+      <p class="mb-1">{{ pedido.endereco }}</p>
+      {% if pedido.entrega %}
+        <p class="mb-0">Status da entrega: <strong>{{ pedido.entrega.status.value }}</strong>
+        {% if pedido.entrega.entregador %}<br>Entregador: {{ pedido.entrega.entregador.nome }}{% endif %}</p>
+      {% endif %}
+      <h3 class="h6 mt-3">Pagamento</h3>
+      <p class="mb-0">{{ pedido.pagamento.forma.value }} · {{ pedido.pagamento.status.value }}
+      {% if pedido.pagamento.codigo_transacao %}<br><span class="text-muted">Transação {{ pedido.pagamento.codigo_transacao }}</span>{% endif %}</p>
+    </div></div>
+
+    {% if pedido.avaliacao %}
+      <div class="card shadow-sm"><div class="card-body">
+        <h3 class="h6">Sua avaliação</h3>
+        <div class="text-warning fs-5">{{ '★' * pedido.avaliacao.nota }}{{ '☆' * (5 - pedido.avaliacao.nota) }}</div>
+        <p class="small mb-0">{{ pedido.avaliacao.comentario }}</p>
+      </div></div>
+    {% elif pedido.status.name == 'ENTREGUE' %}
+      <form method="post" action="{{ url_for('pedido.avaliar', pedido_id=pedido.id) }}" class="card card-body shadow-sm">
+        {{ form.hidden_tag() }}
+        <h3 class="h6">Avalie seu pedido</h3>
+        {{ campo(form.nota) }}
+        {{ campo(form.comentario, attrs={"rows": "3"}) }}
+        <button class="btn btn-brand">Enviar avaliação</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+<a href="{{ url_for('pedido.meus_pedidos') }}" class="btn btn-link px-0 mt-3"><i class="bi bi-arrow-left"></i> Meus pedidos</a>
+{% endblock %}

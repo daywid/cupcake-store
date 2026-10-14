@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge %}
+{% block title %}Meus pedidos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Meus pedidos</h1>
+  <a href="{{ url_for('pedido.novo_endereco') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-geo-alt"></i> Novo endereço</a>
+</div>
+{% if not pedidos %}
+  <p class="text-muted">Você ainda não fez nenhum pedido. <a href="{{ url_for('catalogo.index') }}">Ver cardápio</a></p>
+{% else %}
+<div class="list-group">
+  {% for p in pedidos %}
+  <a href="{{ url_for('pedido.detalhe', pedido_id=p.id) }}" class="list-group-item list-group-item-action d-flex flex-wrap gap-2 justify-content-between align-items-center">
+    <div>
+      <div class="fw-semibold">Pedido nº {{ p.id }}</div>
+      <div class="small text-muted">{{ p.data_pedido|local }} · {{ p.itens|length }} item(ns)</div>
+    </div>
+    <div class="text-end">{{ status_badge(p.status) }}<div class="fw-semibold">{{ p.valor_total|brl }}</div></div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

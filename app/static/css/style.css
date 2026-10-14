@@ -1,0 +1,24 @@
+:root { --brand: #b4436c; --brand-escuro: #8e2f53; --creme: #fff4f7; }
+.bg-brand { background: var(--brand); }
+.btn-brand { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn-brand:hover, .btn-brand:focus { background: var(--brand-escuro); border-color: var(--brand-escuro); color: #fff; }
+a { color: var(--brand-escuro); }
+.hero { background: linear-gradient(120deg, var(--creme), #ffe3ec); }
+
+.produto-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+.produto-svg { background: var(--creme); display: flex; align-items: center; justify-content: center; }
+.produto-svg svg { width: 70%; height: 70%; }
+.produto-card { transition: transform .15s ease, box-shadow .15s ease; }
+.produto-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important; }
+.produto-grande { max-width: 420px; }
+.mini { width: 64px; height: 64px; }
+
+.etapas li { flex: 1; text-align: center; position: relative; color: #999; }
+.etapas li::before { content: ""; position: absolute; top: 16px; left: -50%; width: 100%; height: 3px; background: #ddd; z-index: -1; }
+.etapas li:first-child::before { display: none; }
+.etapas .bolinha { display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;
+  width: 34px; height: 34px; border-radius: 50%; background: #ddd; color: #fff; font-weight: 700; }
+.etapas li.feito { color: var(--brand-escuro); }
+.etapas li.feito .bolinha, .etapas li.feito::before { background: var(--brand); }
+
+@media print { nav, footer, form, .btn { display: none !important; } }

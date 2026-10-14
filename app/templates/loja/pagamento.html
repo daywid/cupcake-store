@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo, csrf %}
+{% block title %}Pagamento{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-7">
+  <h1 class="h4">Pagamento do pedido nº {{ pedido.id }}</h1>
+  <p class="text-muted">Total: <strong class="text-dark">{{ pedido.valor_total|brl }}</strong> · Forma: {{ pedido.pagamento.forma.value }}
+  {% if pedido.pagamento.tentativas %}<br><span class="text-danger small">Tentativas recusadas: {{ pedido.pagamento.tentativas }} de 3</span>{% endif %}</p>
+
+  <div class="card shadow-sm mb-3"><div class="card-body">
+  {% if pix %}
+    <h2 class="h6"><i class="bi bi-qr-code"></i> Pague com PIX</h2>
+    <p class="small">Copie o código abaixo e cole no app do seu banco. Ele expira em 30 minutos.</p>
+    <div class="input-group mb-3">
+      <input type="text" id="pix" class="form-control font-monospace small" value="{{ pix }}" readonly aria-label="Código PIX">
+      <button class="btn btn-outline-secondary" type="button" data-copiar="#pix"><i class="bi bi-clipboard"></i> Copiar</button>
+    </div>
+    <form method="post">{{ csrf() }}
+      <button class="btn btn-brand w-100"><i class="bi bi-check2-circle"></i> Simular pagamento PIX</button>
+    </form>
+    <p class="small text-muted mt-2 mb-0">Ambiente de demonstração: o botão simula a confirmação do banco.</p>
+  {% else %}
+    <h2 class="h6"><i class="bi bi-credit-card"></i> Dados do cartão</h2>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ campo(form.titular, attrs={"autocomplete": "cc-name"}) }}
+      {{ campo(form.numero, attrs={"data-mask": "cartao", "inputmode": "numeric", "autocomplete": "cc-number", "placeholder": "0000 0000 0000 0000"}) }}
+      <div class="row">
+        <div class="col-6">{{ campo(form.validade, attrs={"data-mask": "validade", "inputmode": "numeric", "autocomplete": "cc-exp", "placeholder": "MM/AA"}) }}</div>
+        <div class="col-6">{{ campo(form.cvv, attrs={"inputmode": "numeric", "autocomplete": "cc-csc", "maxlength": "4"}) }}</div>
+      </div>
+      <button class="btn btn-brand w-100">Pagar {{ pedido.valor_total|brl }}</button>
+    </form>
+    <div class="alert alert-light border small mt-3 mb-0">
+      <strong>Cartões de teste:</strong> aprovado <code>4111 1111 1111 1111</code> ·
+      recusado <code>4000 0000 0000 0002</code> · qualquer validade futura e CVV <code>123</code>.
+      Os dados do cartão não são armazenados.
+    </div>
+  {% endif %}
+  </div></div>
+
+  <div class="d-flex flex-wrap gap-2 align-items-center">
+    <form method="post" action="{{ url_for('pedido.trocar_forma', pedido_id=pedido.id) }}" class="d-flex gap-2">
+      {{ csrf() }}
+      <label for="forma" class="visually-hidden">Trocar forma de pagamento</label>
+      <select id="forma" name="forma" class="form-select form-select-sm">
+        {% for f in formas %}<option value="{{ f.name }}" {{ 'selected' if f == pedido.pagamento.forma }}>{{ f.value }}</option>{% endfor %}
+      </select>
+      <button class="btn btn-sm btn-outline-secondary text-nowrap">Trocar forma</button>
+    </form>
+    <form method="post" action="{{ url_for('pedido.cancelar', pedido_id=pedido.id) }}" class="ms-auto" data-confirmar="Cancelar este pedido?">
+      {{ csrf() }}<button class="btn btn-sm btn-outline-danger">Cancelar pedido</button>
+    </form>
+  </div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge %}
+{% block title %}Painel{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Painel administrativo</h1>
+<div class="row g-3 mb-4">
+  <div class="col-sm-4"><div class="card card-body shadow-sm"><div class="small text-muted">Pedidos hoje</div><div class="fs-3 fw-bold">{{ r.pedidos_hoje }}</div></div></div>
+  <div class="col-sm-4"><div class="card card-body shadow-sm"><div class="small text-muted">Faturamento hoje</div><div class="fs-3 fw-bold">{{ r.faturamento_hoje|brl }}</div></div></div>
+  <div class="col-sm-4"><div class="card card-body shadow-sm"><div class="small text-muted">Em andamento</div><div class="fs-3 fw-bold">{{ r.em_andamento }}</div></div></div>
+</div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="d-flex justify-content-between align-items-center"><h2 class="h5">Últimos pedidos</h2><a href="{{ url_for('admin.pedidos') }}" class="small">Ver todos</a></div>
+    <div class="table-responsive"><table class="table table-sm align-middle">
+      <thead><tr><th>Nº</th><th>Cliente</th><th>Data</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for p in ultimos %}
+        <tr><td><a href="{{ url_for('admin.pedido', pedido_id=p.id) }}">{{ p.id }}</a></td><td>{{ p.cliente.nome }}</td>
+          <td>{{ p.data_pedido|local('%d/%m %H:%M') }}</td><td>{{ p.valor_total|brl }}</td><td>{{ status_badge(p.status) }}</td></tr>
+      {% else %}<tr><td colspan="5" class="text-muted">Nenhum pedido ainda.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+  <div class="col-lg-4">
+    <h2 class="h5">Estoque baixo</h2>
+    <ul class="list-group">
+      {% for p in r.estoque_baixo %}
+        <li class="list-group-item d-flex justify-content-between"><a href="{{ url_for('admin.produto_form', produto_id=p.id) }}">{{ p.nome }}</a><span class="badge bg-danger">{{ p.estoque }}</span></li>
+      {% else %}<li class="list-group-item text-muted small">Todos os produtos com estoque ok.</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block title %}Novo endereço{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-7">
+  <h1 class="h4 mb-3">Novo endereço de entrega</h1>
+  <p class="small text-muted">Atendemos CEPs de 01000-000 a 09999-999 (Grande São Paulo).</p>
+  <form method="post" novalidate class="card card-body shadow-sm">
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-sm-4">{{ campo(form.cep, attrs={"data-mask": "cep", "inputmode": "numeric", "placeholder": "00000-000", "data-viacep": "1"}) }}</div>
+      <div class="col-sm-8">{{ campo(form.logradouro) }}</div>
+      <div class="col-sm-4">{{ campo(form.numero) }}</div>
+      <div class="col-sm-8">{{ campo(form.complemento) }}</div>
+      <div class="col-sm-5">{{ campo(form.bairro) }}</div>
+      <div class="col-sm-5">{{ campo(form.cidade) }}</div>
+      <div class="col-sm-2">{{ campo(form.uf, attrs={"maxlength": "2"}) }}</div>
+    </div>
+    <button class="btn btn-brand">Salvar endereço</button>
+  </form>
+</div></div>
+{% endblock %}

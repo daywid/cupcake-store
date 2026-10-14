@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block title %}{{ 'Editar' if produto else 'Novo' }} produto{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+  <h1 class="h4 mb-3">{{ 'Editar ' ~ produto.nome if produto else 'Novo produto' }}</h1>
+  <form method="post" novalidate class="card card-body shadow-sm">
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-8">{{ campo(form.nome) }}</div>
+      <div class="col-md-4">{{ campo(form.categoria_id) }}</div>
+      <div class="col-md-6">{{ campo(form.sabor) }}</div>
+      <div class="col-md-3">{{ campo(form.preco, attrs={"type": "number", "step": "0.01", "min": "0.01"}) }}</div>
+      <div class="col-md-3">{{ campo(form.estoque, attrs={"type": "number", "min": "0"}) }}</div>
+    </div>
+    {{ campo(form.descricao, attrs={"rows": "3"}) }}
+    {{ campo(form.imagem_url, attrs={"placeholder": "https://…/cupcake.jpg (deixe vazio para usar a ilustração)"}) }}
+    {{ campo(form.ativo) }}
+    <div class="d-flex gap-2">
+      <button class="btn btn-brand">Salvar</button>
+      <a href="{{ url_for('admin.produtos') }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

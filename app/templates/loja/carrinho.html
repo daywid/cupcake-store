@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros.html" import imagem, csrf %}
+{% block title %}Carrinho{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Seu carrinho</h1>
+{% if not carrinho.itens %}
+  <div class="text-center py-5">
+    <div class="display-4">🛍️</div>
+    <p class="text-muted">Seu carrinho está vazio.</p>
+    <a href="{{ url_for('catalogo.index') }}" class="btn btn-brand">Ver cardápio</a>
+  </div>
+{% else %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <ul class="list-group">
+      {% for i in carrinho.itens %}
+      <li class="list-group-item d-flex align-items-center gap-3 flex-wrap">
+        <div style="width:64px">{{ imagem(i.produto, "rounded mini") }}</div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">{{ i.produto.nome }}</div>
+          <div class="small text-muted">{{ i.produto.preco|brl }} cada</div>
+          {% if i.quantidade > i.produto.estoque or not i.produto.ativo %}
+            <div class="small text-danger">Estoque disponível: {{ i.produto.estoque if i.produto.ativo else 0 }}</div>
+          {% endif %}
+        </div>
+        <form method="post" action="{{ url_for('carrinho.atualizar', item_id=i.id) }}" class="d-flex gap-1">
+          {{ csrf() }}
+          <label class="visually-hidden" for="q{{ i.id }}">Quantidade</label>
+          <input id="q{{ i.id }}" type="number" name="quantidade" value="{{ i.quantidade }}" min="0" max="{{ i.produto.estoque }}" class="form-control form-control-sm" style="width:72px">
+          <button class="btn btn-sm btn-outline-secondary" title="Atualizar quantidade"><i class="bi bi-arrow-repeat"></i></button>
+        </form>
+        <strong style="min-width:90px" class="text-end">{{ i.subtotal()|brl }}</strong>
+        <form method="post" action="{{ url_for('carrinho.remover', item_id=i.id) }}">
+          {{ csrf() }}
+          <button class="btn btn-sm btn-outline-danger" title="Remover" aria-label="Remover {{ i.produto.nome }}"><i class="bi bi-trash"></i></button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('catalogo.index') }}" class="btn btn-link px-0 mt-2"><i class="bi bi-arrow-left"></i> Continuar comprando</a>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="d-flex justify-content-between"><span>Subtotal</span><strong>{{ carrinho.calcular_total()|brl }}</strong></div>
+      <p class="small text-muted mt-2">Taxa de entrega e cupom são calculados no próximo passo.</p>
+      <a href="{{ url_for('pedido.checkout') }}" class="btn btn-brand w-100">Finalizar compra</a>
+    </div></div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

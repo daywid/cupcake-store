@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block title %}Criar conta{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Criar conta</h1>
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          {{ campo(form.nome, attrs={"autocomplete": "name"}) }}
+          {{ campo(form.email, attrs={"type": "email", "autocomplete": "email"}) }}
+          <div class="row">
+            <div class="col-sm-6">{{ campo(form.cpf, attrs={"data-mask": "cpf", "inputmode": "numeric", "placeholder": "000.000.000-00"}) }}</div>
+            <div class="col-sm-6">{{ campo(form.telefone, attrs={"data-mask": "telefone", "inputmode": "tel", "placeholder": "(11) 90000-0000"}) }}</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">{{ campo(form.senha, attrs={"autocomplete": "new-password"}) }}</div>
+            <div class="col-sm-6">{{ campo(form.confirmar, attrs={"autocomplete": "new-password"}) }}</div>
+          </div>
+          <p class="form-text mt-n2">A senha deve ter no mínimo 8 caracteres.</p>
+          {{ campo(form.aceite) }}
+          <button class="btn btn-brand w-100">Criar conta</button>
+        </form>
+        <p class="small text-center mt-3 mb-0">Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

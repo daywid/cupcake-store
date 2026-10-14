@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Produtos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Produtos</h1>
+  <a href="{{ url_for('admin.produto_form') }}" class="btn btn-brand"><i class="bi bi-plus-lg"></i> Novo produto</a>
+</div>
+<div class="table-responsive"><table class="table align-middle">
+  <thead><tr><th>Nome</th><th>Categoria</th><th class="text-end">Preço</th><th class="text-end">Estoque</th><th>Situação</th><th></th></tr></thead>
+  <tbody>
+  {% for p in produtos %}
+    <tr class="{{ 'text-muted' if not p.ativo }}">
+      <td>{{ p.nome }}</td><td>{{ p.categoria.nome }}</td><td class="text-end">{{ p.preco|brl }}</td>
+      <td class="text-end {{ 'text-danger fw-bold' if p.estoque < 5 }}">{{ p.estoque }}</td>
+      <td>{% if p.ativo %}<span class="badge bg-success">Ativo</span>{% else %}<span class="badge bg-secondary">Inativo</span>{% endif %}</td>
+      <td class="text-end text-nowrap">
+        <a href="{{ url_for('admin.produto_form', produto_id=p.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+        <form method="post" action="{{ url_for('admin.produto_alternar', produto_id=p.id) }}" class="d-inline"
+              data-confirmar="{{ 'Desativar' if p.ativo else 'Ativar' }} {{ p.nome }}?">
+          {{ csrf() }}<button class="btn btn-sm {{ 'btn-outline-danger' if p.ativo else 'btn-outline-success' }}">{{ 'Desativar' if p.ativo else 'Ativar' }}</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

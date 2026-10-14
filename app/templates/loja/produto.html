@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import imagem, csrf %}
+{% block title %}{{ p.nome }}{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{{ url_for('catalogo.index') }}">Cardápio</a></li>
+  <li class="breadcrumb-item"><a href="{{ url_for('catalogo.index', categoria=p.categoria_id) }}">{{ p.categoria.nome }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ p.nome }}</li>
+</ol></nav>
+<div class="row g-4">
+  <div class="col-md-5">{{ imagem(p, "rounded-4 shadow-sm produto-grande") }}</div>
+  <div class="col-md-7">
+    <h1 class="h3">{{ p.nome }}</h1>
+    <p class="text-muted">Sabor: {{ p.sabor }}</p>
+    <p>{{ p.descricao }}</p>
+    <p class="h4 mb-3">{{ p.preco|brl }}</p>
+    {% if p.estoque > 0 %}
+      <p class="small {{ 'text-danger' if p.estoque < 5 else 'text-muted' }}">
+        {{ 'Últimas ' ~ p.estoque ~ ' unidades!' if p.estoque < 5 else p.estoque ~ ' unidades disponíveis' }}
+      </p>
+      <form method="post" action="{{ url_for('carrinho.adicionar', produto_id=p.id) }}" class="d-flex gap-2" style="max-width:320px">
+        {{ csrf() }}
+        <label for="quantidade" class="visually-hidden">Quantidade</label>
+        <input type="number" id="quantidade" name="quantidade" value="1" min="1" max="{{ p.estoque }}" class="form-control" style="width:90px">
+        <button class="btn btn-brand flex-grow-1"><i class="bi bi-bag-plus"></i> Adicionar ao carrinho</button>
+      </form>
+    {% else %}
+      <span class="badge bg-secondary fs-6">Esgotado</span>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
