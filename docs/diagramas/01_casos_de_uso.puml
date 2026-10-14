@@ -1,0 +1,53 @@
+@startuml
+!pragma layout smetana
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+title Diagrama de Casos de Uso Geral - Aplicativo Cupcake Store
+
+actor "Visitante" as Vis
+actor "Cliente" as Cli
+actor "Administrador" as Adm
+actor "Entregador" as Ent
+actor "Gateway de\nPagamento" as GP <<sistema>>
+
+Vis <|-- Cli
+
+rectangle "Cupcake Store" {
+  usecase "UC01 - Cadastrar-se" as UC01
+  usecase "UC02 - Fazer Login" as UC02
+  usecase "UC03 - Consultar Catálogo" as UC03
+  usecase "UC04 - Gerenciar Carrinho" as UC04
+  usecase "UC05 - Realizar Pedido" as UC05
+  usecase "UC06 - Efetuar Pagamento" as UC06
+  usecase "UC07 - Acompanhar Pedido" as UC07
+  usecase "UC08 - Avaliar Pedido" as UC08
+  usecase "UC09 - Gerenciar Produtos" as UC09
+  usecase "UC10 - Gerenciar Pedidos" as UC10
+  usecase "UC11 - Atualizar Status\nda Entrega" as UC11
+  usecase "UC12 - Emitir Relatório\nde Vendas" as UC12
+  usecase "Aplicar Cupom\nde Desconto" as UCcup
+}
+
+Vis --> UC01
+Vis --> UC03
+Cli --> UC02
+Cli --> UC04
+Cli --> UC05
+Cli --> UC07
+Cli --> UC08
+
+UC05 ..> UC06 : <<include>>
+UC05 ..> UC02 : <<include>>
+UCcup ..> UC05 : <<extend>>
+UC06 -- GP
+
+UC09 <-- Adm
+UC10 <-- Adm
+UC12 <-- Adm
+UC11 <-- Ent
+UC09 ..> UC02 : <<include>>
+UC10 ..> UC02 : <<include>>
+UC11 ..> UC02 : <<include>>
+@enduml

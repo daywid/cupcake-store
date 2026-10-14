@@ -1,0 +1,135 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam linetype ortho
+hide circle
+hide methods
+title Modelo Lógico Relacional – Cupcake Store (PK sublinhada, FK indicada)
+
+entity usuario {
+  <u>id</u> : INT
+  --
+  tipo : VARCHAR(20)
+  nome : VARCHAR(120)
+  email : VARCHAR(120) <<UQ>>
+  senha_hash : VARCHAR(255)
+  telefone : VARCHAR(20)
+  data_cadastro : DATETIME
+  cpf : CHAR(11) <<UQ>>
+  data_nascimento : DATE
+  nivel_acesso : INT
+  cnh : VARCHAR(20)
+  veiculo : VARCHAR(60)
+}
+entity endereco {
+  <u>id</u> : INT
+  --
+  cliente_id : INT <<FK>>
+  logradouro, numero, complemento
+  bairro, cidade : VARCHAR
+  uf : CHAR(2)
+  cep : CHAR(8)
+}
+entity categoria {
+  <u>id</u> : INT
+  --
+  nome : VARCHAR(60) <<UQ>>
+  descricao : VARCHAR(255)
+}
+entity produto {
+  <u>id</u> : INT
+  --
+  categoria_id : INT <<FK>>
+  nome : VARCHAR(100)
+  descricao : TEXT
+  sabor : VARCHAR(60)
+  preco : DECIMAL(10,2)
+  estoque : INT
+  imagem_url : VARCHAR(255)
+  ativo : BOOLEAN
+}
+entity carrinho {
+  <u>id</u> : INT
+  --
+  cliente_id : INT <<FK,UQ>>
+  data_criacao : DATETIME
+}
+entity item_carrinho {
+  <u>id</u> : INT
+  --
+  carrinho_id : INT <<FK>>
+  produto_id : INT <<FK>>
+  quantidade : INT
+  preco_unitario : DECIMAL(10,2)
+}
+entity cupom {
+  <u>id</u> : INT
+  --
+  codigo : VARCHAR(30) <<UQ>>
+  percentual : DECIMAL(5,2)
+  validade : DATE
+  ativo : BOOLEAN
+}
+entity pedido {
+  <u>id</u> : INT
+  --
+  cliente_id : INT <<FK>>
+  endereco_id : INT <<FK>>
+  cupom_id : INT <<FK>>
+  data_pedido : DATETIME
+  subtotal, desconto : DECIMAL(10,2)
+  taxa_entrega, valor_total : DECIMAL(10,2)
+  status : ENUM
+}
+entity item_pedido {
+  <u>id</u> : INT
+  --
+  pedido_id : INT <<FK>>
+  produto_id : INT <<FK>>
+  quantidade : INT
+  preco_unitario : DECIMAL(10,2)
+}
+entity pagamento {
+  <u>id</u> : INT
+  --
+  pedido_id : INT <<FK,UQ>>
+  forma : ENUM
+  valor : DECIMAL(10,2)
+  status : ENUM
+  codigo_transacao : VARCHAR(64)
+  tentativas : INT
+  data_pagamento : DATETIME
+}
+entity entrega {
+  <u>id</u> : INT
+  --
+  pedido_id : INT <<FK,UQ>>
+  entregador_id : INT <<FK>>
+  status : ENUM
+  previsao, data_entrega : DATETIME
+}
+entity avaliacao {
+  <u>id</u> : INT
+  --
+  pedido_id : INT <<FK,UQ>>
+  nota : INT
+  comentario : VARCHAR(500)
+  data : DATETIME
+}
+
+usuario ||--o{ endereco
+usuario ||--o| carrinho
+carrinho ||--o{ item_carrinho
+produto ||--o{ item_carrinho
+categoria ||--o{ produto
+usuario ||--o{ pedido
+endereco ||--o{ pedido
+cupom |o--o{ pedido
+pedido ||--|{ item_pedido
+produto ||--o{ item_pedido
+pedido ||--|| pagamento
+pedido ||--o| entrega
+usuario |o--o{ entrega
+pedido ||--o| avaliacao
+@enduml

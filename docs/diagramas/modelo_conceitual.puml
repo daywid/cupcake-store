@@ -1,0 +1,65 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+hide circle
+hide methods
+title Modelo Conceitual (DER – entidades e relacionamentos) – Cupcake Store
+
+entity USUARIO {
+  nome, email, senha, telefone
+}
+entity CLIENTE {
+  cpf, data_nascimento
+}
+entity ADMINISTRADOR {
+  nivel_acesso
+}
+entity ENTREGADOR {
+  cnh, veiculo
+}
+entity ENDERECO {
+  logradouro, numero, bairro, cidade, uf, cep
+}
+entity CATEGORIA {
+  nome, descricao
+}
+entity PRODUTO {
+  nome, sabor, preco, estoque, ativo
+}
+entity CARRINHO {
+  data_criacao
+}
+entity PEDIDO {
+  data, subtotal, desconto, taxa, total, status
+}
+entity PAGAMENTO {
+  forma, valor, status, transacao
+}
+entity ENTREGA {
+  status, previsao, data_entrega
+}
+entity CUPOM {
+  codigo, percentual, validade
+}
+entity AVALIACAO {
+  nota, comentario
+}
+
+USUARIO <|-- CLIENTE
+USUARIO <|-- ADMINISTRADOR
+USUARIO <|-- ENTREGADOR
+
+CLIENTE ||--|{ ENDERECO : possui
+CLIENTE ||--|| CARRINHO : tem
+CARRINHO }o--o{ PRODUTO : "contém (qtd)"
+CATEGORIA ||--o{ PRODUTO : agrupa
+CLIENTE ||--o{ PEDIDO : realiza
+PEDIDO }o--|{ PRODUTO : "contém (qtd, preço)"
+PEDIDO ||--|| PAGAMENTO : "é pago por"
+PEDIDO ||--o| ENTREGA : gera
+PEDIDO }o--|| ENDERECO : "entregue em"
+PEDIDO }o--o| CUPOM : aplica
+ENTREGADOR |o--o{ ENTREGA : realiza
+PEDIDO ||--o| AVALIACAO : recebe
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+autonumber
+title Diagrama de Sequência - UC05 Realizar Pedido (com UC06 Efetuar Pagamento)
+
+actor Cliente
+boundary "TelaCarrinho" as TC
+boundary "TelaCheckout" as TK
+control "PedidoController" as PC
+entity "Carrinho" as CA
+entity "Produto" as PR
+entity "Pedido" as PE
+control "PagamentoService" as PS
+participant "Gateway de\nPagamento" as GP <<sistema externo>>
+database "Banco de Dados" as BD
+
+Cliente -> TC : clicar "Finalizar compra"
+TC -> PC : iniciarCheckout(idCliente)
+PC -> CA : obterItens()
+CA --> PC : itens
+loop para cada item
+  PC -> PR : verificarEstoque(qtd)
+  PR --> PC : disponível
+end
+alt item sem estoque
+  PC --> TC : erro "Produto indisponível"
+  TC --> Cliente : exibir aviso e atualizar carrinho
+else estoque OK
+  PC --> TK : exibir resumo (itens, endereço, frete)
+  Cliente -> TK : selecionar endereço e forma de pagamento
+  opt informou cupom
+    TK -> PC : aplicarCupom(codigo)
+    PC --> TK : desconto aplicado / cupom inválido
+  end
+  Cliente -> TK : confirmar pedido
+  TK -> PC : confirmarPedido(dados)
+  PC -> PE : criar(itens, endereco, total)
+  PE -> BD : INSERT pedido (AGUARDANDO_PAGAMENTO)
+  BD --> PE : idPedido
+  PC -> PS : processarPagamento(idPedido, forma, valor)
+  PS -> GP : solicitarAutorizacao(valor, dados)
+  GP --> PS : resposta
+  alt pagamento aprovado
+    PS -> BD : INSERT pagamento (APROVADO)
+    PS --> PC : aprovado
+    PC -> PR : baixarEstoque(itens)
+    PR -> BD : UPDATE estoque
+    PC -> PE : alterarStatus(PAGO)
+    PE -> BD : UPDATE pedido
+    PC -> CA : limpar()
+    PC --> TK : pedido confirmado (nº do pedido)
+    TK --> Cliente : exibir confirmação e prazo de entrega
+  else pagamento recusado
+    PS -> BD : INSERT pagamento (RECUSADO)
+    PS --> PC : recusado
+    PC --> TK : erro "Pagamento recusado"
+    TK --> Cliente : solicitar outra forma de pagamento
+  end
+end
+@enduml

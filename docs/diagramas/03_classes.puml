@@ -1,0 +1,174 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classAttributeIconSize 0
+hide circle
+title Diagrama de Classes (Persistência) - Aplicativo Cupcake Store
+
+abstract class Usuario {
+  - id : int
+  - nome : String
+  - email : String
+  - senhaHash : String
+  - telefone : String
+  - dataCadastro : DateTime
+  + autenticar(email, senha) : boolean
+  + alterarSenha(nova : String) : void
+}
+
+class Cliente {
+  - cpf : String
+  - dataNascimento : Date
+  + realizarPedido(c : Carrinho) : Pedido
+  + consultarPedidos() : List<Pedido>
+}
+
+class Administrador {
+  - nivelAcesso : int
+  + cadastrarProduto(p : Produto) : void
+  + emitirRelatorio(inicio : Date, fim : Date) : void
+}
+
+class Entregador {
+  - cnh : String
+  - veiculo : String
+  + atualizarStatus(e : Entrega, s : StatusEntrega) : void
+}
+
+class Endereco {
+  - id : int
+  - logradouro : String
+  - numero : String
+  - complemento : String
+  - bairro : String
+  - cidade : String
+  - uf : String
+  - cep : String
+}
+
+class Categoria {
+  - id : int
+  - nome : String
+  - descricao : String
+}
+
+class Produto {
+  - id : int
+  - nome : String
+  - descricao : String
+  - sabor : String
+  - preco : decimal
+  - estoque : int
+  - imagemUrl : String
+  - ativo : boolean
+  + baixarEstoque(qtd : int) : void
+}
+
+class Carrinho {
+  - id : int
+  - dataCriacao : DateTime
+  + adicionarItem(p : Produto, qtd : int) : void
+  + removerItem(p : Produto) : void
+  + calcularTotal() : decimal
+}
+
+class ItemCarrinho {
+  - quantidade : int
+  - precoUnitario : decimal
+}
+
+class Pedido {
+  - id : int
+  - dataPedido : DateTime
+  - valorTotal : decimal
+  - taxaEntrega : decimal
+  - status : StatusPedido
+  + calcularTotal() : decimal
+  + cancelar() : void
+}
+
+class ItemPedido {
+  - quantidade : int
+  - precoUnitario : decimal
+  + subtotal() : decimal
+}
+
+class Pagamento {
+  - id : int
+  - forma : FormaPagamento
+  - valor : decimal
+  - status : StatusPagamento
+  - codigoTransacao : String
+  - dataPagamento : DateTime
+  + processar() : boolean
+}
+
+class Entrega {
+  - id : int
+  - status : StatusEntrega
+  - previsao : DateTime
+  - dataEntrega : DateTime
+}
+
+class Cupom {
+  - codigo : String
+  - percentual : decimal
+  - validade : Date
+  + validar() : boolean
+}
+
+class Avaliacao {
+  - id : int
+  - nota : int
+  - comentario : String
+  - data : DateTime
+}
+
+enum StatusPedido {
+  AGUARDANDO_PAGAMENTO
+  PAGO
+  EM_PREPARO
+  SAIU_PARA_ENTREGA
+  ENTREGUE
+  CANCELADO
+}
+
+enum FormaPagamento {
+  PIX
+  CARTAO_CREDITO
+  CARTAO_DEBITO
+}
+
+enum StatusPagamento {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
+enum StatusEntrega {
+  AGUARDANDO
+  EM_ROTA
+  ENTREGUE
+}
+
+Usuario <|-- Cliente
+Usuario <|-- Administrador
+Usuario <|-- Entregador
+
+Cliente "1" o-- "1..*" Endereco : possui
+Cliente "1" *-- "1" Carrinho : possui
+Carrinho "1" *-- "0..*" ItemCarrinho
+ItemCarrinho "0..*" --> "1" Produto
+Categoria "1" o-- "0..*" Produto : agrupa
+
+Cliente "1" -- "0..*" Pedido : realiza
+Pedido "1" *-- "1..*" ItemPedido
+ItemPedido "0..*" --> "1" Produto
+Pedido "1" *-- "1" Pagamento
+Pedido "1" *-- "1" Entrega
+Pedido "0..*" --> "1" Endereco : entregar em
+Pedido "0..*" --> "0..1" Cupom : aplica
+Entrega "0..*" --> "1" Entregador : realizada por
+Pedido "1" -- "0..1" Avaliacao : recebe
+@enduml
