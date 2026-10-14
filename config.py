@@ -6,9 +6,10 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 def _database_url():
     url = os.environ.get("DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'cupcake.db')}")
-    # Render/Heroku entregam "postgres://", o SQLAlchemy exige "postgresql://"
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
+    # Render entrega "postgres://" ou "postgresql://"; fixamos o driver psycopg2 explicitamente
+    for prefixo in ("postgres://", "postgresql://"):
+        if url.startswith(prefixo):
+            return "postgresql+psycopg2://" + url[len(prefixo):]
     return url
 
 
