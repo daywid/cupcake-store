@@ -50,6 +50,9 @@
     el.addEventListener("change", () => el.form.requestSubmit());
   });
 
+  // Avisos flutuantes de confirmação (ex.: item adicionado ao carrinho).
+  document.querySelectorAll(".toast").forEach((t) => new bootstrap.Toast(t, { delay: 4000 }).show());
+
   // Login: preenche e-mail e senha com o usuário de teste escolhido.
   document.querySelectorAll("[data-login-teste]").forEach((btn) => {
     btn.addEventListener("click", () => {

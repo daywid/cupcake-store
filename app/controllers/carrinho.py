@@ -44,7 +44,9 @@ def adicionar(produto_id):
         current_user.carrinho.adicionar_item(produto, qtd)
         db.session.commit()
         flash(f"{produto.nome} adicionado ao carrinho.", "success")
-    return redirect(request.referrer or url_for("catalogo.index"))
+    # Volta ao card do produto, e não ao topo da página (teste com usuários)
+    origem = (request.referrer or url_for("catalogo.index")).split("#", 1)[0]
+    return redirect(f"{origem}#produto-{produto.id}")
 
 
 def _item_do_cliente(item_id):

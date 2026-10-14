@@ -26,8 +26,8 @@
         <form method="post" action="{{ url_for('carrinho.atualizar', item_id=i.id) }}" class="d-flex gap-1">
           {{ csrf() }}
           <label class="visually-hidden" for="q{{ i.id }}">Quantidade</label>
-          <input id="q{{ i.id }}" type="number" name="quantidade" value="{{ i.quantidade }}" min="0" max="{{ i.produto.estoque }}" class="form-control form-control-sm" style="width:72px">
-          <button class="btn btn-sm btn-outline-secondary" title="Atualizar quantidade"><i class="bi bi-arrow-repeat"></i></button>
+          <input id="q{{ i.id }}" type="number" name="quantidade" value="{{ i.quantidade }}" min="0" max="{{ i.produto.estoque }}" class="form-control form-control-sm" style="width:72px" data-recalcular>
+          <button class="btn btn-sm btn-outline-secondary">Atualizar</button>
         </form>
         <strong style="min-width:90px" class="text-end">{{ i.subtotal()|brl }}</strong>
         <form method="post" action="{{ url_for('carrinho.remover', item_id=i.id) }}">

@@ -1,3 +1,5 @@
+import re
+
 from app.models import Pedido, Produto, StatusPedido, Usuario
 
 from .conftest import login
@@ -108,3 +110,60 @@ def test_login_ignora_next_externo(client):
     r = client.post("/login?next=//exemplo.com",
                     data={"email": "cliente@cupcake.com", "senha": "cliente12345"})
     assert r.headers["Location"] == "/"
+
+
+ENDERECO_CURITIBA = {"cep": "82520-700", "logradouro": "Rua Teste", "numero": "100",
+                     "bairro": "Bacacheri", "cidade": "Curitiba", "uf": "PR"}
+
+
+def test_cardapio_informa_area_de_entrega(client):
+    """Teste com usuário (caso 1): a área atendida aparece antes de montar o carrinho."""
+    assert "01000-000 a 09999-999".encode() in client.get("/").data
+
+
+def test_endereco_fora_da_area_nao_e_salvo(cliente, app):
+    """Teste com usuário (caso 1): RN04 já no cadastro do endereço."""
+    r = cliente.post("/enderecos/novo", data=ENDERECO_CURITIBA)
+    assert r.status_code == 200
+    assert "Ainda não entregamos neste CEP".encode() in r.data
+    assert len(Usuario.query.filter_by(email="cliente@cupcake.com").one().enderecos) == 1
+
+
+def test_checkout_seleciona_endereco_atendido(cliente, app):
+    """Teste com usuário (caso 1): endereço antigo fora da área não vem marcado."""
+    from app.extensions import db
+    from app.models import Endereco
+    c = Usuario.query.filter_by(email="cliente@cupcake.com").one()
+    db.session.add(Endereco(cliente=c, **{**ENDERECO_CURITIBA, "cep": "82520700"}))
+    db.session.commit()
+    p = Produto.query.filter_by(nome="Banana Fit").one()
+    cliente.post(f"/carrinho/adicionar/{p.id}")
+    r = cliente.get("/checkout")
+    assert "Infelizmente".encode() not in r.data
+    marcado = re.search(rb'<input[^>]*checked[^>]*name="endereco_id"[^>]*value="(\d+)"', r.data)
+    assert int(marcado.group(1)) == c.enderecos[0].id
+
+
+def test_adicionar_volta_para_o_produto(cliente):
+    """Melhoria de usabilidade: a página volta ao card do produto, não ao topo."""
+    p = Produto.query.filter_by(nome="Banana Fit").one()
+    r = cliente.post(f"/carrinho/adicionar/{p.id}", headers={"Referer": "http://localhost/?categoria=2"})
+    assert r.headers["Location"].endswith(f"/?categoria=2#produto-{p.id}")
+
+
+def test_carrinho_esvazia_ao_criar_pedido_e_volta_ao_cancelar(cliente, app):
+    """Melhoria de usabilidade: o contador do carrinho não mostra itens já pedidos."""
+    c = Usuario.query.filter_by(email="cliente@cupcake.com").one()
+    p = Produto.query.filter_by(nome="Banana Fit").one()
+    cliente.post(f"/carrinho/adicionar/{p.id}", data={"quantidade": 2})
+    cliente.post("/checkout", data={"endereco_id": c.enderecos[0].id, "forma": "PIX",
+                                    "acao": "confirmar"})
+    pedido = Pedido.query.one()
+    assert c.carrinho.itens == []
+    cliente.post(f"/pedido/{pedido.id}/cancelar")
+    assert pedido.status == StatusPedido.CANCELADO
+    assert [(i.produto.nome, i.quantidade) for i in c.carrinho.itens] == [("Banana Fit", 2)]
+
+
+def test_meus_pedidos_sem_botao_novo_endereco(cliente):
+    assert "Novo endereço".encode() not in cliente.get("/pedidos").data

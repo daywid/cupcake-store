@@ -2,6 +2,7 @@ import hashlib
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
+from flask import current_app
 from flask_login import current_user
 
 
@@ -28,6 +29,17 @@ def inicio_do_dia_utc():
     return meia_noite.astimezone(timezone.utc).replace(tzinfo=None)
 
 
+def formatar_cep(cep):
+    d = "".join(c for c in str(cep or "") if c.isdigit())
+    return f"{d[:5]}-{d[5:]}" if len(d) == 8 else cep
+
+
+def area_atendida():
+    """RN04 em texto para o cliente: Grande São Paulo (CEP 01000-000 a 09999-999)."""
+    ini, fim = current_app.config["CEP_AREA_ATENDIDA"]
+    return f"Grande São Paulo (CEP {formatar_cep(ini)} a {formatar_cep(fim)})"
+
+
 PALETA = ["#f48fb1", "#ce93d8", "#90caf9", "#a5d6a7", "#ffe082", "#ffab91", "#bcaaa4", "#80cbc4"]
 
 
@@ -41,6 +53,7 @@ def register_template_helpers(app):
     app.jinja_env.filters["brl"] = brl
     app.jinja_env.filters["local"] = hora_local
     app.jinja_env.globals["cor_produto"] = cor_produto
+    app.jinja_env.globals["area_atendida"] = area_atendida
 
     @app.context_processor
     def carrinho_badge():

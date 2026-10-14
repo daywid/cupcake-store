@@ -43,14 +43,14 @@ O sistema não deixa adicionar mais unidades do que há em estoque.
 
 ### 4. Revisar o carrinho
 Clique em **Carrinho** no menu. Nele você pode:
-- alterar a quantidade e clicar em 🔄 para atualizar;
+- alterar a quantidade (o carrinho atualiza sozinho; o botão **Atualizar** também funciona);
 - remover um item com 🗑️;
 - clicar em **Finalizar compra**.
 
 ![Carrinho](prints/04_carrinho.png)
 
 ### 5. Finalizar a compra (checkout)
-1. **Endereço:** escolha um endereço ou clique em **Novo endereço**. Ao digitar o CEP, rua, bairro e cidade são preenchidos automaticamente. Só entregamos para CEPs de 01000-000 a 09999-999.
+1. **Endereço:** escolha um endereço ou clique em **Novo endereço**. Ao digitar o CEP, rua, bairro e cidade são preenchidos automaticamente. Só entregamos para CEPs de 01000-000 a 09999-999 (Grande São Paulo): um CEP fora dessa faixa é recusado já no cadastro do endereço.
 2. **Cupom:** digite o código (ex.: `BEMVINDO10` ou `DOCE20`) e clique em **Aplicar**. O desconto aparece no resumo.
 3. **Pagamento:** escolha PIX, cartão de crédito ou cartão de débito.
 4. Confira o resumo (subtotal, desconto, taxa de entrega e total) e clique em **Confirmar pedido**.

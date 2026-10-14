@@ -5,7 +5,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from flask import current_app
 
 from ..extensions import db
-from ..models import (Cupom, Entrega, ItemPedido, Pagamento, Pedido, StatusPagamento,
+from ..models import (Carrinho, Cupom, Entrega, ItemPedido, Pagamento, Pedido, StatusPagamento,
                       StatusPedido)
 from .validadores import somente_digitos
 
@@ -77,8 +77,21 @@ def criar_pedido(cliente, endereco, forma, cupom=None):
                                        preco_unitario=i.produto.preco))
     pedido.pagamento = Pagamento(forma=forma, valor=v["total"], status=StatusPagamento.PENDENTE)
     db.session.add(pedido)
+    # Os itens já estão no pedido; esvaziar o carrinho evita a impressão de compra pendente
+    # (teste com usuários). O estoque continua sendo baixado só no pagamento (RN01).
+    cliente.carrinho.limpar()
     db.session.commit()
     return pedido
+
+
+def devolver_ao_carrinho(pedido):
+    """Pedido cancelado pelo cliente: os itens voltam ao carrinho para ele não ter de refazer."""
+    cliente = pedido.cliente
+    if cliente.carrinho is None:
+        cliente.carrinho = Carrinho()
+    for item in pedido.itens:
+        if item.produto.ativo:
+            cliente.carrinho.adicionar_item(item.produto, item.quantidade)
 
 
 def confirmar_pagamento(pedido, codigo_transacao):

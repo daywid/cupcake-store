@@ -2,10 +2,7 @@
 {% from "_macros.html" import status_badge %}
 {% block title %}Meus pedidos{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Meus pedidos</h1>
-  <a href="{{ url_for('pedido.novo_endereco') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-geo-alt"></i> Novo endereço</a>
-</div>
+<h1 class="h3 mb-3">Meus pedidos</h1>
 {% if not pedidos %}
   <p class="text-muted">Você ainda não fez nenhum pedido. <a href="{{ url_for('catalogo.index') }}">Ver cardápio</a></p>
 {% else %}

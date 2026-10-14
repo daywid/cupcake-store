@@ -22,3 +22,6 @@ a { color: var(--brand-escuro); }
 .etapas li.feito .bolinha, .etapas li.feito::before { background: var(--brand); }
 
 @media print { nav, footer, form, .btn { display: none !important; } }
+
+/* Ao voltar de "adicionar ao carrinho", o card não fica escondido atrás do menu fixo */
+.produto-col { scroll-margin-top: 90px; }

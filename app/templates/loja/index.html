@@ -4,7 +4,8 @@
 {% block content %}
 <section class="hero rounded-4 p-4 p-md-5 mb-4">
   <h1 class="display-6 fw-bold">Cupcakes artesanais, entregues fresquinhos</h1>
-  <p class="lead mb-0">Escolha seus favoritos, pague com PIX ou cartão e acompanhe a entrega em tempo real.</p>
+  <p class="lead">Escolha seus favoritos, pague com PIX ou cartão e acompanhe a entrega em tempo real.</p>
+  <p class="mb-0 small"><i class="bi bi-truck"></i> Entregamos somente na {{ area_atendida() }}.</p>
 </section>
 
 <form class="row g-2 mb-3" method="get" role="search">
@@ -30,7 +31,7 @@
 
 <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
   {% for p in produtos %}
-  <div class="col">
+  <div class="col produto-col" id="produto-{{ p.id }}">
     <div class="card h-100 produto-card shadow-sm">
       <a href="{{ url_for('catalogo.produto', produto_id=p.id) }}">{{ imagem(p, "card-img-top") }}</a>
       <div class="card-body d-flex flex-column">

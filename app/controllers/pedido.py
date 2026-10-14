@@ -9,6 +9,7 @@ from ..models import (Avaliacao, Endereco, FormaPagamento, Pedido, StatusPagamen
 from ..services import pagamento as gateway
 from ..services import regras
 from ..services.regras import RegraNegocioError
+from ..utils import area_atendida
 from .carrinho import cliente_required
 
 bp = Blueprint("pedido", __name__)
@@ -28,8 +29,8 @@ def novo_endereco():
     form = EnderecoForm()
     if form.validate_on_submit():
         if not regras.cep_atendido(form.cep.data):  # RN04 – curso alternativo Beta do UC05
-            flash("Este CEP está fora da nossa área de entrega. O endereço foi salvo, "
-                  "mas não poderá ser usado para pedidos.", "warning")
+            form.cep.errors.append(f"Ainda não entregamos neste CEP. Atendemos a {area_atendida()}.")
+            return render_template("loja/endereco_form.html", form=form)
         end = Endereco(cliente=current_user, uf=form.uf.data.upper(),
                        **{k: getattr(form, k).data for k in
                           ("cep", "logradouro", "numero", "complemento", "bairro", "cidade")})
@@ -65,10 +66,12 @@ def checkout():
 
     form = CheckoutForm()
     form.endereco_id.choices = [(e.id, str(e)) for e in enderecos]
+    # Padrão: o endereço mais recente dentro da área atendida (RN04)
+    padrao = next((e for e in reversed(enderecos) if regras.cep_atendido(e.cep)), enderecos[-1])
     if request.method == "GET":
-        form.endereco_id.data = enderecos[-1].id
+        form.endereco_id.data = padrao.id
 
-    endereco = next((e for e in enderecos if e.id == form.endereco_id.data), enderecos[-1])
+    endereco = next((e for e in enderecos if e.id == form.endereco_id.data), padrao)
     cupom, erro_taxa = None, None
     try:
         cupom = regras.buscar_cupom(form.cupom.data)
@@ -176,8 +179,9 @@ def cancelar(pedido_id):
     pedido = _pedido_do_cliente(pedido_id)
     if pedido.status == StatusPedido.AGUARDANDO_PAGAMENTO:
         pedido.cancelar()
+        regras.devolver_ao_carrinho(pedido)
         db.session.commit()
-        flash("Pedido cancelado.", "info")
+        flash("Pedido cancelado. Os itens voltaram para o seu carrinho.", "info")
     else:
         flash("Somente pedidos aguardando pagamento podem ser cancelados.", "warning")
     return redirect(url_for("pedido.detalhe", pedido_id=pedido.id))
